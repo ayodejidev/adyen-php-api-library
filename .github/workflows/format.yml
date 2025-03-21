@@ -1,32 +1,32 @@
-name: PHP Format
+# name: PHP Format
 
-on:
-  push:
-    branches:
-      - 'sdk-automation/models'
+# on:
+#   push:
+#     branches:
+#       - 'sdk-automation/models'
 
-jobs:
-  format:
-    if: ${{ ! startsWith(github.event.head_commit.message, 'style(fmt)') }}
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          token: ${{ secrets.ADYEN_AUTOMATION_BOT_ACCESS_TOKEN }}
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          tools: composer:v1
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
-      - name: Run PHP Code Sniffer
-        run: composer run fmt || true
-      - run: |
-          git config user.name AdyenAutomationBot
-          git config user.email "${{ secrets.ADYEN_AUTOMATION_BOT_EMAIL }}"
-          git add .
-          git commit -m "style(fmt): code formatted"
-          git push
+# jobs:
+#   format:
+#     if: ${{ ! startsWith(github.event.head_commit.message, 'style(fmt)') }}
+#     permissions:
+#       contents: write
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+#         with:
+#           token: ${{ secrets.ADYEN_AUTOMATION_BOT_ACCESS_TOKEN }}
+#       - name: Setup PHP
+#         uses: shivammathur/setup-php@v2
+#         with:
+#           php-version: 8.2
+#           tools: composer:v1
+#       - name: Install dependencies
+#         run: composer install --prefer-dist --no-progress
+#       - name: Run PHP Code Sniffer
+#         run: composer run fmt || true
+#       - run: |
+#           git config user.name AdyenAutomationBot
+#           git config user.email "${{ secrets.ADYEN_AUTOMATION_BOT_EMAIL }}"
+#           git add .
+#           git commit -m "style(fmt): code formatted"
+#           git push
