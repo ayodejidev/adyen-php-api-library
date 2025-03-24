@@ -13,7 +13,7 @@ on:
 
 jobs:
   test:
-    name: Validate and Test
+    name: Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -51,9 +51,31 @@ jobs:
       - name: Clean up reports
         run: sed -i "s;`pwd`/;;g" build/*.xml
 
+  lint:
+    name: Lint
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run PHP Code Sniffer
+        run: vendor/bin/phpcs --exclude=Generic.Files.LineLength
+
   integration-tests:
     name: Integration Tests
-    needs: test
+    needs: [test, lint]
     runs-on: ubuntu-latest
 
     # Only run integration tests on pull requests with release label and from the main repository
@@ -91,25 +113,3 @@ jobs:
           INTEGRATION_STORE_PAYOUT_PASSWORD: ${{ secrets.INTEGRATION_STORE_PAYOUT_PASSWORD }}
           INTEGRATION_REVIEW_PAYOUT_USERNAME: ${{ secrets.INTEGRATION_REVIEW_PAYOUT_USERNAME }}
           INTEGRATION_REVIEW_PAYOUT_PASSWORD: ${{ secrets.INTEGRATION_REVIEW_PAYOUT_PASSWORD }}
-
-  lint:
-    name: Lint
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.2"
-          tools: composer:v2
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
-
-      - name: Run PHP Code Sniffer
-        run: vendor/bin/phpcs --exclude=Generic.Files.LineLength
